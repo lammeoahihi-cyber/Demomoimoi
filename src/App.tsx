@@ -21,7 +21,9 @@ import {
   Database,
   Lock,
   Layers,
-  Activity
+  Activity,
+  Coins,
+  TrendingUp
 } from 'lucide-react';
 
 import { ColumnMappingConfig, FileData, ProcessingLog, ProcessingResult } from './types';
@@ -88,12 +90,12 @@ export default function App() {
     setSourceFile(file);
     const autodetect = autoDetectSourceColumns(file.headers);
     setColumnConfig(prev => ({ ...prev, sourceSkuCol: autodetect.skuCol, sourcePriceGCol: autodetect.priceGCol, sourcePriceHCol: autodetect.priceHCol }));
-    addLog(`Đã tải Tệp Gốc 1: "${file.name}"`, 'success');
+    addLog(`💰 Đã nạp Tệp Gốc 1 vào két sắt: "${file.name}"`, 'success');
   };
 
   const handleSourceColCFileLoaded = (file: FileData) => {
     setSourceColCFile(file);
-    addLog(`Đã tải Tệp Gốc 2 (Cột C): "${file.name}"`, 'success');
+    addLog(`🪙 Đã nạp Tệp Gốc 2 (Cột C) vào kho bạc: "${file.name}"`, 'success');
   };
 
   const handleRefFileLoaded = (file: FileData) => {
@@ -101,14 +103,14 @@ export default function App() {
     const autodetect = autoDetectRefColumns(file.headers);
     setColumnConfig(prev => ({ ...prev, refSkuCol: autodetect.skuCol, refPriceCol: autodetect.priceCol }));
     setColumnConfigColC(prev => ({ ...prev, refSkuCol: autodetect.skuCol, refPriceCol: autodetect.priceCol }));
-    addLog(`Đã tải Tệp Giá Mới: "${file.name}"`, 'success');
+    addLog(`✨ Đã nạp Tệp Giá Mới đối chiếu thành công: "${file.name}"`, 'success');
   };
 
   const handleLoadSampleData = () => {
     const { sourceFile: mockSource, sourceColCFile: mockSourceColC, refFile: mockRef } = createMockupFiles();
     setSourceFile(mockSource); setSourceColCFile(mockSourceColC); setRefFile(mockRef);
     setResult(null); setResultColC(null); setActiveTab('file-f'); setLogs([]);
-    addLog('Đã nạp bộ dữ liệu mẫu 3D không gian Shopee thành công.', 'success');
+    addLog('💎 Đã mở hòm kho báu chứa dữ liệu Shopee mẫu thành công!', 'success');
   };
 
   const handleClearAll = () => {
@@ -118,15 +120,15 @@ export default function App() {
   const runMatchingAlgorithm = () => {
     if (!refFile || (!sourceFile && !sourceColCFile)) return;
     setIsProcessing(true);
-    addLog('Hệ thống hạt đang lượng hóa và khớp dữ liệu...', 'info');
+    addLog('⚡ Máy đếm tiền đang chạy, tiến hành khớp mã SKU tài lộc...', 'info');
     setTimeout(() => {
       try {
         if (sourceFile) setResult(processSheets(sourceFile, refFile, columnConfig));
         if (sourceColCFile) setResultColC(processSheets(sourceColCFile, refFile, columnConfigColC));
         setActiveTab(sourceFile ? 'file-f' : 'file-c');
-        addLog(`Đối sánh đa chiều hoàn tất!`, 'success');
+        addLog(`🎉 Quy trình đối soát sinh kim tài lộc hoàn tất mỹ mãn!`, 'success');
       } catch (err: any) {
-        addLog(`Lỗi xử lý: ${err.message}`, 'error');
+        addLog(`❌ Gặp lỗi kiểm kê: ${err.message}`, 'error');
       } finally { setIsProcessing(false); }
     }, 800);
   };
@@ -157,131 +159,128 @@ export default function App() {
   const activeResult = resolvedTab === 'file-f' ? result : resultColC;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased overflow-x-hidden relative selection:bg-indigo-500 selection:text-white">
-      {/* BACKGROUND HIỆU ỨNG KHÔNG GIAN 3D (CHUNG) */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] z-0 pointer-events-none opacity-70 animate-pulse" style={{ animationDuration: '8s' }} />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none z-0" />
-      <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none z-0" />
+    <div className="min-h-screen bg-stone-50 text-amber-950 font-sans antialiased overflow-x-hidden relative selection:bg-amber-200 selection:text-amber-900">
+      {/* NỀN HOÀNG GIA LẤP LÁNH ÁNH VÀNG */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#f3e8ff_1px,transparent_1px),linear-gradient(to_bottom,#f3e8ff_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_60%,transparent_100%)] z-0 pointer-events-none opacity-50" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-amber-200/40 rounded-full blur-3xl pointer-events-none z-0 animate-pulse" style={{ animationDuration: '6s' }} />
+      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-yellow-100/50 rounded-full blur-3xl pointer-events-none z-0" />
 
       <AnimatePresence mode="wait">
-        {/* MÀN HÌNH KHÓA 3D SIÊU THỰC */}
+        {/* MÀN HÌNH KHÓA 3D "KÉT SẮT HOÀNG GIA" */}
         {!isAuthorized ? (
           <motion.div 
             key="lock-screen"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, y: -50, rotateX: 15 }}
+            exit={{ opacity: 0, y: -40, rotateX: 12 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="min-h-screen flex items-center justify-center p-4 relative z-10 [perspective:1000px]"
           >
-            {/* Thẻ Card Khóa hỗ trợ hiệu ứng xoay 3D nhẹ khi Hover */}
             <motion.div 
-              whileHover={{ rotateX: 4, rotateY: -4, translateZ: 10 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="max-w-md w-full bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 text-center border border-slate-800 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] shadow-indigo-950/20 relative overflow-hidden"
+              whileHover={{ rotateX: 3, rotateY: -3, translateZ: 15 }}
+              transition={{ type: "spring", stiffness: 300, damping: 22 }}
+              className="max-w-md w-full bg-white rounded-3xl p-8 text-center border-2 border-amber-200 shadow-[0_30px_60px_-15px_rgba(217,119,6,0.15)] relative overflow-hidden"
               style={{ transformStyle: "preserve-3d" }}
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500" />
+              {/* Thanh kim tiền viền vàng thượng lưu */}
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-300" />
               
               <motion.div 
-                animate={{ rotateY: [0, 360] }}
-                transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
-                className="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-indigo-500/30"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                className="mx-auto w-16 h-16 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-2xl flex items-center justify-center text-amber-950 mb-5 shadow-lg shadow-amber-500/20"
               >
-                <Lock className="w-7 h-7" />
+                <Coins className="w-8 h-8" />
               </motion.div>
               
-              <h2 className="text-2xl font-black text-white tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-                Hệ Thống Được Bảo Vệ
+              <h2 className="text-2xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-amber-700 via-yellow-600 to-amber-900">
+                Két Sắt Được Bảo Vệ
               </h2>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                Khoang xử lý dữ liệu đang được mã hóa bằng thuật toán không gian. Vui lòng điền mật mã để khởi chạy lõi năng lượng.
+              <p className="text-xs text-amber-800/70 mt-1.5 leading-relaxed font-medium">
+                Hệ thống quản lý tài lộc đang được niêm phong an toàn. Vui lòng nhập mã khóa đại cát để mở hòm tài sản.
               </p>
 
               <form onSubmit={handleVerifyKey} className="mt-8 text-left" style={{ transform: "translateZ(20px)" }}>
-                <label className="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2.5">
-                  Mã bảo mật định danh (Access Key)
+                <label className="block text-[10px] font-black text-amber-700 uppercase tracking-widest mb-2">
+                  Mật Mã Khai Xuân / Access Key
                 </label>
                 <input
                   type="password"
-                  placeholder="Điền mã bảo mật..."
+                  placeholder="Nhập mã vàng bạc..."
                   value={inputKey}
                   onChange={(e) => setInputKey(e.target.value)}
-                  className="w-full px-5 py-3.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 text-white rounded-xl outline-none transition-all text-sm placeholder-slate-600 font-mono shadow-[inner_0_2px_4px_rgba(0,0,0,0.6)] focus:shadow-[0_0_15px_rgba(99,102,241,0.2)]"
+                  className="w-full px-5 py-3.5 bg-amber-50/50 border-2 border-amber-100 focus:border-amber-400 text-amber-950 rounded-xl outline-none transition-all text-sm placeholder-amber-700/40 font-mono shadow-[inner_0_2px_4px_rgba(217,119,6,0.05)] focus:bg-white"
                 />
                 
                 {lockError && (
-                  <motion.p initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="mt-3 text-xs font-semibold text-rose-400 flex items-center gap-1.5">
-                    🚀 {lockError}
+                  <motion.p initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} className="mt-3 text-xs font-bold text-rose-600 flex items-center gap-1">
+                    ⚠️ {lockError}
                   </motion.p>
                 )}
 
                 <motion.button
-                  whileHover={{ scale: 1.02, translateY: -2, boxShadow: "0 10px 20px rgba(79, 70, 229, 0.4)" }}
+                  whileHover={{ scale: 1.02, translateY: -2, boxShadow: "0 12px 24px rgba(217, 119, 6, 0.25)" }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="mt-6 w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold text-xs rounded-xl tracking-wider uppercase transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg"
+                  className="mt-6 w-full py-4 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-amber-950 font-black text-xs rounded-xl tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md border border-yellow-300"
                 >
-                  Kích hoạt lõi ứng dụng
+                  Mở khóa kho báu
                   <ArrowRight className="w-4 h-4" />
                 </motion.button>
               </form>
             </motion.div>
           </motion.div>
         ) : (
-          /* GIAO DIỆN TRONG TRANG WEB CHÍNH - SIÊU ĐẸP & SINH ĐỘNG */
+          /* GIAO DIỆN CHÍNH "SANG TRỌNG VÀNG KIM - HOÀNG GIA" */
           <motion.div 
             key="main-app"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.5 }}
             className="relative z-10"
           >
-            {/* THANH HEADER HIỆN ĐẠI CYBERPUNK */}
-            <header className="bg-slate-900/70 border-b border-slate-800 shadow-xl sticky top-0 z-40 backdrop-blur-md">
+            {/* THANH HEADER ĐẲNG CẤP THƯỢNG LƯU */}
+            <header className="bg-white/80 border-b-2 border-amber-100 shadow-sm sticky top-0 z-40 backdrop-blur-md">
               <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5">
-                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-3 rounded-2xl shadow-lg shadow-indigo-500/20 relative overflow-hidden group">
-                    <Sparkles className="w-6 h-6 animate-spin" style={{ animationDuration: '15s' }} />
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  <div className="bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 text-amber-950 p-3 rounded-2xl shadow-md shadow-amber-500/20 relative group">
+                    <Sparkles className="w-6 h-6 animate-spin" style={{ animationDuration: '20s' }} />
                   </div>
                   <div>
-                    <h1 className="text-md md:text-xl font-black text-white tracking-tight flex items-center gap-2">
-                      TRỢ LÝ ĐỐI KHỚP EXCEL
-                      <span className="text-[9px] font-black text-indigo-300 bg-indigo-950/80 border border-indigo-800 px-2 py-0.5 rounded-md uppercase tracking-widest">CYBER v1.3</span>
+                    <h1 className="text-base md:text-xl font-black text-amber-900 tracking-tight flex items-center gap-2">
+                      TRỢ LÝ ĐỐI KHỚP & ĐỔI VÀNG EXCEL
+                      <span className="text-[9px] font-black text-amber-800 bg-amber-100/80 border border-amber-200 px-2 py-0.5 rounded-md uppercase tracking-widest">GOLD v1.3</span>
                     </h1>
-                    <p className="text-xs text-slate-400 font-medium">
-                      Động cơ xử lý lượng tử: Làm sạch số liệu, quét SKU đa luồng và đồng bộ giá bán tự động.
+                    <p className="text-xs text-amber-800/60 font-semibold">
+                      Kiểm kê thông minh: Chuẩn hóa tiền tệ, khớp SKU tự động và cập nhật giá bán thu hút tài lộc.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-2.5 shrink-0">
                   <button
                     onClick={handleLoadSampleData}
-                    className="px-4 py-2.5 text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-750 border border-slate-700/60 rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-md"
+                    className="px-4 py-2.5 text-xs font-black text-amber-900 hover:bg-amber-100 bg-amber-50 border-2 border-amber-200/60 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
                   >
-                    <Database className="w-4 h-4 text-indigo-400" />
-                    Nạp Dữ Liệu Mẫu 3D
+                    <Database className="w-4 h-4 text-amber-600" />
+                    Sử Dụng Bản Mẫu Tài Lộc
                   </button>
                   
-                  {/* Nút Gỡ tất cả file */}
                   {(sourceFile || sourceColCFile || refFile) && (
                     <button
                       onClick={handleClearAll}
-                      className="px-4 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-950/30 border border-rose-900/50 rounded-xl transition-all cursor-pointer"
+                      className="px-4 py-2.5 text-xs font-bold text-rose-700 hover:bg-rose-50 border-2 border-rose-100 rounded-xl transition-all cursor-pointer"
                     >
-                      Xóa Bộ Nhớ Tệp
+                      Xóa Hòm Tệp
                     </button>
                   )}
                   
-                  {/* Nút Khóa Hoạt cảnh Trở ra */}
                   <button
                     onClick={() => {
                       localStorage.removeItem('site_access_granted');
                       setIsAuthorized(false);
                     }}
-                    className="px-3 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-300 hover:bg-slate-800/80 rounded-xl border border-dashed border-slate-700 transition-all cursor-pointer"
+                    className="px-3 py-2.5 text-xs font-bold text-amber-700/60 hover:text-amber-900 hover:bg-amber-50 border-2 border-dashed border-amber-200 rounded-xl transition-all cursor-pointer"
                   >
                     Khóa lại
                   </button>
@@ -289,29 +288,26 @@ export default function App() {
               </div>
             </header>
 
-            {/* KHOANG CHỨA NỘI DUNG CHÍNH CHUẨN KHÔNG GIAN 3D */}
+            {/* PHÂN KHU HÀM CHỨA CARD 3D VÀNG BẠC */}
             <main className="max-w-6xl mx-auto px-4 md:px-6 py-8 [perspective:1200px]">
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-6">
                 
-                {/* LƯỚI THẢ TỆP BOX 3D HOVER */}
+                {/* 3 KHỐI CARD THẢ FILE SANG TRỌNG */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                   {[
-                    { file: sourceFile, id: "source-orig", label: "Tệp Gốc 1 (SKU Cột F)", color: "from-indigo-500 to-purple-600", colorGlow: "shadow-indigo-950/40", fn: handleSourceFileLoaded, clr: () => { setSourceFile(null); setResult(null); }, desc: "Hỗ trợ file Excel (.xlsx, .xls) hoặc CSV. Chứa SKU tại Cột F (chuẩn mặc định), giá gốc cột G, giá bán cột H.", icon: "master", hclr: "indigo" },
-                    { file: sourceColCFile, id: "source-col-c", label: "Tệp Gốc 2 (SKU Cột C)", color: "from-sky-500 to-blue-600", colorGlow: "shadow-sky-950/40", fn: handleSourceColCFileLoaded, clr: () => { setSourceColCFile(null); setResultColC(null); }, desc: "Excel hoặc CSV. Chứa SKU định vị chính xác tại Cột C. Tự động khớp SKU và dán đè giá mới cập nhật.", icon: "master", hclr: "sky" },
-                    { file: refFile, id: "ref-pricing", label: "Tệp Giá Mới (Tệp Đối Chiếu)", color: "from-emerald-500 to-teal-600", colorGlow: "shadow-emerald-950/40", fn: handleRefFileLoaded, clr: () => { setRefFile(null); setResult(null); setResultColC(null); }, desc: "Chứa bảng đối chiếu mã SKU tương ứng với mức giá mới cần cập nhật.", icon: "reference", hclr: "emerald" }
+                    { file: sourceFile, id: "source-orig", label: "Két Gốc 1 (SKU Cột F)", color: "from-amber-400 to-yellow-500", glow: "shadow-amber-500/5", fn: handleSourceFileLoaded, clr: () => { setSourceFile(null); setResult(null); }, desc: "Chứa SKU tại Cột F (chuẩn mặc định), tự động quét và lọc sạch đuôi tiền tệ lẻ .00.", icon: "master", hclr: "indigo" },
+                    { file: sourceColCFile, id: "source-col-c", label: "Két Gốc 2 (SKU Cột C)", color: "from-yellow-400 to-amber-500", glow: "shadow-yellow-500/5", fn: handleSourceColCFileLoaded, clr: () => { setSourceColCFile(null); setResultColC(null); }, desc: "Hỗ trợ file chứa SKU định vị chính xác tại Cột C. Tự động ghi đè giá vàng thần tốc.", icon: "master", hclr: "sky" },
+                    { file: refFile, id: "ref-pricing", label: "Bảng Giá Mới Đối Chiếu", color: "from-emerald-400 to-teal-500", glow: "shadow-emerald-500/5", fn: handleRefFileLoaded, clr: () => { setRefFile(null); setResult(null); setResultColC(null); }, desc: "Bảng chứa danh sách giá mới cập nhật tương ứng phục vụ tra cứu giao thương.", icon: "reference", hclr: "emerald" }
                   ].map((zone, idx) => (
                     <motion.div
                       key={zone.id}
-                      initial={{ opacity: 0, y: 20, rotateY: idx * 2 }}
-                      animate={{ opacity: 1, y: 0, rotateY: 0 }}
-                      transition={{ delay: idx * 0.1, type: "spring" }}
-                      whileHover={{ scale: 1.02, translateY: -4, rotateX: 2 }}
-                      className={`bg-slate-900/60 backdrop-blur border border-slate-800/80 rounded-2xl p-1 shadow-xl ${zone.colorGlow} transition-all duration-300 relative overflow-hidden group`}
+                      whileHover={{ scale: 1.02, translateY: -3, rotateX: 1.5, borderColor: "#fbbf24" }}
+                      className={`bg-white border-2 border-amber-100 rounded-2xl p-1 shadow-lg ${zone.glow} transition-all duration-300 relative overflow-hidden`}
                     >
                       <div className={`h-1 w-full bg-gradient-to-r ${zone.color}`} />
-                      <div className="p-5">
+                      <div className="p-4 bg-gradient-to-b from-amber-50/20 to-transparent">
                         <FileUploadZone
-                          id={zone.id} label={zone.label} placeholder="Kéo và thả tệp dữ liệu hạt..." description={zone.desc}
+                          id={zone.id} label={zone.label} placeholder="Thả tệp dữ liệu hái ra tiền vào đây..." description={zone.desc}
                           file={zone.file} onFileLoaded={zone.fn} onFileCleared={zone.clr} iconName={zone.icon} highlightColor={zone.hclr}
                         />
                       </div>
@@ -319,33 +315,30 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* BẢNG ĐIỀU CHỈNH MAPPING RULES SÂU */}
-                <motion.div 
-                  whileHover={{ translateZ: 5 }}
-                  className="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-2 shadow-inner"
-                >
+                {/* BẢNG CẤU HÌNH CỘT (MAPPING) */}
+                <motion.div whileHover={{ scale: 1.005 }} className="bg-white border-2 border-amber-100 rounded-2xl p-1 shadow-md">
                   <MappingSettings
                     sourceFile={sourceFile} sourceColCFile={sourceColCFile} refFile={refFile}
                     config={columnConfig} configColC={columnConfigColC} onChange={setColumnConfig} onChangeColC={setColumnConfigColC}
                   />
                 </motion.div>
 
-                {/* NÚT KÍCH HOẠT QUY TRÌNH HẠT MÁY CHỦ (BẤM LÀ NỔ HIỆU ỨNG) */}
+                {/* NÚT THỰC THI "ĐỐI CHIẾU SINH TÀI LỘC" */}
                 {(sourceFile || sourceColCFile) && refFile && !result && !resultColC && (
                   <motion.div 
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="bg-gradient-to-r from-slate-900 to-indigo-950 border border-indigo-900/40 rounded-2xl p-6 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden"
+                    initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                    className="bg-gradient-to-r from-amber-900 to-amber-950 border-2 border-yellow-400 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden"
                   >
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
+                    {/* Luồng sáng vàng kim chìm mặt sau */}
+                    <div className="absolute -top-12 -right-12 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
                     <div className="flex gap-4 items-start relative z-10">
-                      <div className="p-3 rounded-xl bg-indigo-950 text-indigo-400 border border-indigo-800/50 shrink-0 mt-0.5 animate-pulse">
-                        <Activity className="w-6 h-6" />
+                      <div className="p-3 rounded-xl bg-amber-950 border border-yellow-400/40 text-yellow-400 shrink-0 mt-0.5 animate-bounce">
+                        <TrendingUp className="w-6 h-6" />
                       </div>
                       <div>
-                        <span className="text-sm font-bold text-indigo-300 tracking-wide uppercase block">Sẵn sàng hợp nhất ma trận giá</span>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed max-w-xl">
-                          Động cơ đã nạp đủ tệp nguồn. Khi thực thi, hệ thống sẽ tự động gỡ đuôi số thập phân .00, đồng bộ khóa SKU và tạo lớp dữ liệu xuất khẩu mới.
+                        <span className="text-sm font-black text-yellow-400 tracking-wider uppercase block">Sẵn sàng vận hành dòng tiền dữ liệu</span>
+                        <p className="text-xs text-amber-100/70 mt-1 leading-relaxed max-w-xl font-medium">
+                          Mọi nguồn tệp đã lọt vào kho. Nhấp nút kích hoạt để hệ thống khai thông luồng đối khớp, vá lại giá bán tối ưu lợi nhuận ngay lập tức.
                         </p>
                       </div>
                     </div>
@@ -353,152 +346,152 @@ export default function App() {
                     <motion.button
                       onClick={runMatchingAlgorithm}
                       disabled={isProcessing}
-                      whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(99, 102, 241, 0.5)" }}
-                      whileTap={{ scale: 0.97 }}
-                      className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white font-extrabold text-xs rounded-xl tracking-wider uppercase shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2.5 disabled:opacity-40 relative z-10 shrink-0"
+                      whileHover={{ scale: 1.04, boxShadow: "0 0 25px rgba(245, 158, 11, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-yellow-400 hover:to-amber-500 text-amber-950 font-black text-xs rounded-xl tracking-widest uppercase shadow-md border border-yellow-200 transition-all cursor-pointer flex items-center justify-center gap-2 shrink-0 relative z-10"
                     >
                       {isProcessing ? (
                         <>
                           <RefreshCw className="w-4 h-4 animate-spin" />
-                          ĐANG XỬ LÝ LƯỢNG TỬ...
+                          ĐANG ĐẾM TIỀN...
                         </>
                       ) : (
                         <>
-                          <Play className="w-4 h-4 fill-white animate-bounce" />
-                          BẮT ĐẦU ĐỐI CHIẾU 3D
+                          <Play className="w-4 h-4 fill-amber-950" />
+                          KÍCH HOẠT ĐỐI CHIẾU SINH TÀI
                         </>
                       )}
                     </motion.button>
                   </motion.div>
                 )}
 
-                {/* TAB CHUYỂN ĐỔI PHÂN KHÚC KẾT QUẢ KHI CÓ ĐỦ CẢ HAI */}
+                {/* PHÂN TAB KẾT QUẢ SONG TRÙNG */}
                 {(result && resultColC) && (
-                  <div className="flex bg-slate-900 border border-slate-800 p-1.5 rounded-xl self-start gap-2 shadow-inner">
+                  <div className="flex bg-white border-2 border-amber-100 p-1.5 rounded-xl self-start gap-2 shadow-sm">
                     <button
                       onClick={() => setActiveTab('file-f')}
-                      className={`py-2.5 px-5 text-xs font-bold rounded-lg transition-all cursor-pointer tracking-wide ${
-                        activeTab === 'file-f' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'
+                      className={`py-2 px-4 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                        activeTab === 'file-f' ? 'bg-amber-500 text-amber-950 shadow' : 'text-amber-800 hover:bg-amber-50'
                       }`}
                     >
-                      KẾT QUẢ TỆP CỘT F ({result.matchingCount} dòng khớp)
+                      KÉT KẾT QUẢ CỘT F ({result.matchingCount} dòng)
                     </button>
                     <button
                       onClick={() => setActiveTab('file-c')}
-                      className={`py-2.5 px-5 text-xs font-bold rounded-lg transition-all cursor-pointer tracking-wide ${
-                        activeTab === 'file-c' ? 'bg-sky-600 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'
+                      className={`py-2 px-4 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                        activeTab === 'file-c' ? 'bg-yellow-500 text-amber-950 shadow' : 'text-amber-800 hover:bg-amber-50'
                       }`}
                     >
-                      KẾT QUẢ TỆP CỘT C ({resultColC.matchingCount} dòng khớp)
+                      KÉT KẾT QUẢ CỘT C ({resultColC.matchingCount} dòng)
                     </button>
                   </div>
                 )}
 
-                {/* BẢNG THỐNG KÊ DASHBOARD CHUYÊN NGHIỆP */}
+                {/* THÀNH QUẢ DASHBOARD (HIỂN THỊ KHI XỬ LÝ XONG) */}
                 {activeResult && (
-                  <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
+                  <motion.div initial={{ opacity: 0, scale: 0.99 }} animate={{ opacity: 1, scale: 1 }}>
                     <StatsDashboard result={activeResult} onReset={handleClearAll} />
                   </motion.div>
                 )}
 
-                {/* KHO KẾT XUẤT DOWNLOAD FILE 3D CARD */}
+                {/* KHU VỰC TẢI FILE VÀNG KHỐI */}
                 {(result || resultColC) && (
                   <div className="flex flex-col gap-6">
                     {result && (
-                      <motion.div whileHover={{ scale: 1.01 }} className="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col gap-4">
-                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest block bg-indigo-950/40 self-start px-3 py-1 rounded-md border border-indigo-900/50">
-                          Bộ Xuất Bản Tệp Gốc 1 (Mã SKU Cột F)
+                      <div className="bg-white border-2 border-amber-100 p-6 rounded-2xl shadow-md flex flex-col gap-4">
+                        <span className="text-xs font-black text-amber-800 uppercase tracking-widest block bg-amber-50 self-start px-3 py-1 rounded-md border border-amber-200">
+                          📦 Kết Xuất Tải Về Cho Tệp Gốc 1 (Cột F)
                         </span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex flex-col justify-between gap-3 bg-slate-950 border border-slate-900 p-4 rounded-xl hover:border-indigo-500/30 transition-all group">
+                          <div className="flex flex-col justify-between gap-3 bg-amber-50/20 border-2 border-amber-100/60 p-4 rounded-xl hover:border-amber-400 transition-all group">
                             <div>
-                              <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-400 transition-colors block">1. Bản Phát Hành Đã Sửa Đè Cột F</span>
-                              <p className="text-[11px] text-slate-500 mt-1 leading-normal">Mức giá mới được dán đè trực tiếp tại Cột H, định dạng số đã dọn sạch đuôi lẻ .00.</p>
+                              <span className="text-xs font-black text-amber-900 block">1. Tệp Kết Quả Đã Vá Giá Cột F</span>
+                              <p className="text-[11px] text-amber-700/70 mt-1 font-medium">Bản ghi hoàn chỉnh, điền giá bán mới chuẩn xác 100% rước tài lộc.</p>
                             </div>
-                            <button onClick={() => downloadResultFile('file-f')} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-xl tracking-wide uppercase transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
-                              <Download className="w-4 h-4" /> Tải Tệp_Kết_Quả_Sửa_F.xlsx
+                            <button onClick={() => downloadResultFile('file-f')} className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm border border-yellow-300">
+                              <Download className="w-4 h-4" /> Tải Tệp_Kết_Quả_F.xlsx
                             </button>
                           </div>
 
-                          <div className="flex flex-col justify-between gap-3 bg-slate-950 border border-slate-900 p-4 rounded-xl hover:border-emerald-500/30 transition-all group">
+                          <div className="flex flex-col justify-between gap-3 bg-amber-50/20 border-2 border-amber-100/60 p-4 rounded-xl hover:border-emerald-400 transition-all group">
                             <div>
-                              <span className="text-xs font-bold text-slate-200 group-hover:text-emerald-400 transition-colors block">2. Bản Phân Tích Tra Soát Đối Chiếu F</span>
-                              <p className="text-[11px] text-slate-500 mt-1 leading-normal">Báo cáo đa trang chia rõ các khối danh mục SKU thành công và SKU thất bại.</p>
+                              <span className="text-xs font-black text-amber-900 block">2. Bản Đối Soát Doanh Số Chi Tiết F</span>
+                              <p className="text-[11px] text-amber-700/70 mt-1 font-medium">Thống kê đa chiều, tách nhóm mã bán tốt và nhóm cần thanh lý.</p>
                             </div>
-                            <button onClick={() => downloadComparisonFile('file-f')} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl tracking-wide uppercase transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                            <button onClick={() => downloadComparisonFile('file-f')} className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm">
                               <Download className="w-4 h-4" /> Tải Đối_Chiếu_Mã_F.xlsx
                             </button>
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     )}
 
                     {resultColC && (
-                      <motion.div whileHover={{ scale: 1.01 }} className="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col gap-4">
-                        <span className="text-xs font-black text-sky-400 uppercase tracking-widest block bg-sky-950/40 self-start px-3 py-1 rounded-md border border-sky-900/50">
-                          Bộ Xuất Bản Tệp Gốc 2 (Mã SKU Cột C)
+                      <div className="bg-white border-2 border-amber-100 p-6 rounded-2xl shadow-md flex flex-col gap-4">
+                        <span className="text-xs font-black text-amber-800 uppercase tracking-widest block bg-amber-50 self-start px-3 py-1 rounded-md border border-amber-200">
+                          📦 Kết Xuất Tải Về Cho Tệp Gốc 2 (Cột C)
                         </span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex flex-col justify-between gap-3 bg-slate-950 border border-slate-900 p-4 rounded-xl hover:border-sky-500/30 transition-all group">
+                          <div className="flex flex-col justify-between gap-3 bg-amber-50/20 border-2 border-amber-100/60 p-4 rounded-xl hover:border-yellow-500 transition-all group">
                             <div>
-                              <span className="text-xs font-bold text-slate-200 group-hover:text-sky-400 transition-colors block">1. Bản Phát Hành Đã Sửa Đè Cột C</span>
-                              <p className="text-[11px] text-slate-500 mt-1 leading-normal">Dò quét mã từ lõi Cột C của tệp gốc thứ 2 để vá và ghi đè mức giá phù hợp hoàn hảo.</p>
+                              <span className="text-xs font-black text-amber-900 block">1. Tệp Kết Quả Đã Vá Giá Cột C</span>
+                              <p className="text-[11px] text-amber-700/70 mt-1 font-medium">Xử lý chuỗi SKU tại cột C, hoàn thiện bảng giá bán ra cực chuẩn.</p>
                             </div>
-                            <button onClick={() => downloadResultFile('file-c')} className="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs rounded-xl tracking-wide uppercase transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
-                              <Download className="w-4 h-4" /> Tải Tệp_Kết_Quả_Sửa_C.xlsx
+                            <button onClick={() => downloadResultFile('file-c')} className="w-full py-2.5 bg-yellow-500 hover:bg-yellow-600 text-amber-950 font-black text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm border border-yellow-200">
+                              <Download className="w-4 h-4" /> Tải Tệp_Kết_Quả_C.xlsx
                             </button>
                           </div>
 
-                          <div className="flex flex-col justify-between gap-3 bg-slate-950 border border-slate-900 p-4 rounded-xl hover:border-teal-500/30 transition-all group">
+                          <div className="flex flex-col justify-between gap-3 bg-amber-50/20 border-2 border-amber-100/60 p-4 rounded-xl hover:border-teal-400 transition-all group">
                             <div>
-                              <span className="text-xs font-bold text-slate-200 group-hover:text-teal-400 transition-colors block">2. Bản Phân Tích Tra Soát Đối Chiếu C</span>
-                              <p className="text-[11px] text-slate-500 mt-1 leading-normal">Bóc tách ma trận SKU trùng khớp bên trong bảng dữ liệu tệp gốc thứ 2.</p>
+                              <span className="text-xs font-black text-amber-900 block">2. Bản Đối Soát Doanh Số Chi Tiết C</span>
+                              <p className="text-[11px] text-amber-700/70 mt-1 font-medium">Kiểm tra lỗi mã SKU không khớp để cân đối kho hàng phú quý.</p>
                             </div>
-                            <button onClick={() => downloadComparisonFile('file-c')} className="w-full py-3 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs rounded-xl tracking-wide uppercase transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                            <button onClick={() => downloadComparisonFile('file-c')} className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-black text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm">
                               <Download className="w-4 h-4" /> Tải Đối_Chiếu_Mã_C.xlsx
                             </button>
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     )}
                   </div>
                 )}
 
-                {/* BẢNG PREVIEW DATA SAU KHI ĐỐI CHIẾU */}
+                {/* BẢNG TRỰC QUAN XEM TRƯỚC DỮ LIỆU */}
                 {activeResult && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                  <div className="shadow-sm border-2 border-amber-100 rounded-2xl overflow-hidden bg-white">
                     <MatchTable result={activeResult} />
-                  </motion.div>
+                  </div>
                 )}
 
-                {/* NHẬT KÝ CONSOLE HOẠT HÌNH LƯỢNG TỬ */}
-                <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-2xl relative overflow-hidden group">
-                  <div className="flex items-center justify-between mb-3.5 pb-2 border-b border-slate-800">
+                {/* NHẬT KÝ KIỂM KÊ KÉT SẮT (CONSOLE LOGS) */}
+                <div className="bg-white border-2 border-amber-100 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                  <div className="flex items-center justify-between mb-3.5 pb-2 border-b-2 border-amber-50">
                     <div className="flex items-center gap-2">
-                      <Terminal className="w-4 h-4 text-indigo-400 animate-pulse" />
-                      <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Nhật Ký Lõi Thực Thi (Console)</span>
+                      <Terminal className="w-4 h-4 text-amber-600" />
+                      <span className="text-xs font-black text-amber-800 uppercase tracking-wider">Nhật Ký Lõi Kiểm Kê Kho Bạc</span>
                     </div>
                     <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-rose-500/60" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+                      <div className="w-2 h-2 rounded-full bg-amber-400" />
+                      <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                      <div className="w-2 h-2 rounded-full bg-amber-600" />
                     </div>
                   </div>
                   
                   {logs.length === 0 ? (
-                    <div className="text-center py-8 text-xs text-slate-600 font-mono tracking-wide animate-pulse">
-                      📡 Hệ thống đang rảnh rỗi. Đang chờ luồng dữ liệu Excel đầu vào...
+                    <div className="text-center py-6 text-xs text-amber-800/40 font-mono font-bold tracking-wide">
+                      🪙 Kho bạc đang sẵn sàng. Vui lòng đổ tệp Excel vào két...
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto font-mono text-[11px] bg-slate-950/80 p-4 rounded-xl border border-slate-900 shadow-inner custom-scrollbar">
+                    <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto font-mono text-[11px] bg-amber-50/30 p-4 rounded-xl border border-amber-100 shadow-inner">
                       {logs.map((log, index) => (
-                        <div key={index} className="flex gap-2.5 items-start leading-relaxed border-l-2 border-slate-800/40 pl-2">
-                          <span className="text-slate-600 shrink-0 select-none">[{log.timestamp}]</span>
+                        <div key={index} className="flex gap-2.5 items-start leading-relaxed border-l-2 border-amber-200 pl-2">
+                          <span className="text-amber-800/50 shrink-0 select-none">[{log.timestamp}]</span>
                           <span className={`
-                            ${log.type === 'success' ? 'text-emerald-400 font-medium drop-shadow-[0_0_6px_rgba(52,211,153,0.2)]' : ''}
-                            ${log.type === 'error' ? 'text-rose-400 font-bold' : ''}
-                            ${log.type === 'warn' ? 'text-amber-400 font-medium' : ''}
-                            ${log.type === 'info' ? 'text-indigo-300' : ''}
+                            ${log.type === 'success' ? 'text-emerald-700 font-bold' : ''}
+                            ${log.type === 'error' ? 'text-rose-600 font-extrabold' : ''}
+                            ${log.type === 'warn' ? 'text-amber-600 font-bold' : ''}
+                            ${log.type === 'info' ? 'text-amber-900 font-medium' : ''}
                           `}>
                             {log.message}
                           </span>
