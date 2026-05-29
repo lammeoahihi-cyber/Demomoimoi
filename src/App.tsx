@@ -71,8 +71,15 @@ export default function App() {
   const [columnConfig, setColumnConfig] = useState<ColumnMappingConfig>({
     sourceSkuCol: 5, sourcePriceGCol: 6, sourcePriceHCol: 7, refSkuCol: 0, refPriceCol: 1, hasCustomMapping: false
   });
+  
+  // VỊ TRÍ SỬA 1: Cấu hình mặc định ban đầu cho Tệp Cột C (Luôn đưa giá về cột G và H)
   const [columnConfigColC, setColumnConfigColC] = useState<ColumnMappingConfig>({
-    sourceSkuCol: 2, sourcePriceGCol: 3, sourcePriceHCol: 4, refSkuCol: 0, refPriceCol: 1, hasCustomMapping: false
+    sourceSkuCol: 2, 
+    sourcePriceGCol: 6, // Đã sửa từ 3 sang 6 (Cột G)
+    sourcePriceHCol: 7, // Đã sửa từ 4 sang 7 (Ghi đè giá mới về đúng Cột H)
+    refSkuCol: 0, 
+    refPriceCol: 1, 
+    hasCustomMapping: false
   });
 
   const [result, setResult] = useState<ProcessingResult | null>(null);
@@ -93,14 +100,21 @@ export default function App() {
     addLog(`💰 Đã nạp Tệp Gốc 1 vào két sắt: "${file.name}"`, 'success');
   };
 
+  // VỊ TRÍ SỬA 2: Ép cứng chỉ số cột kết quả về G và H khi tải Tệp Cột C lên thực tế
   const handleSourceColCFileLoaded = (file: FileData) => {
     setSourceColCFile(file);
+    setColumnConfigColC(prev => ({ 
+      ...prev, 
+      sourceSkuCol: 2, 
+      sourcePriceGCol: 6, // Ép cứng đọc giá gốc từ Cột G để khử đuôi .00
+      sourcePriceHCol: 7  // Ép cứng đưa mức giá mới cập nhật về đúng Cột H
+    }));
     addLog(`🪙 Đã nạp Tệp Gốc 2 (Cột C) vào kho bạc: "${file.name}"`, 'success');
   };
 
   const handleRefFileLoaded = (file: FileData) => {
-    setRefFile(file);
     const autodetect = autoDetectRefColumns(file.headers);
+    setRefFile(file);
     setColumnConfig(prev => ({ ...prev, refSkuCol: autodetect.skuCol, refPriceCol: autodetect.priceCol }));
     setColumnConfigColC(prev => ({ ...prev, refSkuCol: autodetect.skuCol, refPriceCol: autodetect.priceCol }));
     addLog(`✨ Đã nạp Tệp Giá Mới đối chiếu thành công: "${file.name}"`, 'success');
@@ -109,6 +123,19 @@ export default function App() {
   const handleLoadSampleData = () => {
     const { sourceFile: mockSource, sourceColCFile: mockSourceColC, refFile: mockRef } = createMockupFiles();
     setSourceFile(mockSource); setSourceColCFile(mockSourceColC); setRefFile(mockRef);
+    setColumnConfig({
+      sourceSkuCol: 5, sourcePriceGCol: 6, sourcePriceHCol: 7, refSkuCol: 0, refPriceCol: 1, hasCustomMapping: false
+    });
+    
+    // VỊ TRÍ SỬA 3: Đồng bộ cấu hình dữ liệu mẫu để đưa giá mới về Cột H khi thử nghiệm
+    setColumnConfigColC({
+      sourceSkuCol: 2, 
+      sourcePriceGCol: 6, // Đã sửa từ 3 sang 6
+      sourcePriceHCol: 7, // Đã sửa từ 4 sang 7
+      refSkuCol: 0, 
+      refPriceCol: 1, 
+      hasCustomMapping: false
+    });
     setResult(null); setResultColC(null); setActiveTab('file-f'); setLogs([]);
     addLog('💎 Đã mở hòm kho báu chứa dữ liệu Shopee mẫu thành công!', 'success');
   };
@@ -266,6 +293,7 @@ export default function App() {
                     Sử Dụng Bản Mẫu Tài Lộc
                   </button>
                   
+                  {/* Nút Gỡ tất cả file */}
                   {(sourceFile || sourceColCFile || refFile) && (
                     <button
                       onClick={handleClearAll}
@@ -296,7 +324,7 @@ export default function App() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                   {[
                     { file: sourceFile, id: "source-orig", label: "Két Gốc 1 (SKU Cột F)", color: "from-amber-400 to-yellow-500", glow: "shadow-amber-500/5", fn: handleSourceFileLoaded, clr: () => { setSourceFile(null); setResult(null); }, desc: "Chứa SKU tại Cột F (chuẩn mặc định), tự động quét và lọc sạch đuôi tiền tệ lẻ .00.", icon: "master", hclr: "indigo" },
-                    { file: sourceColCFile, id: "source-col-c", label: "Két Gốc 2 (SKU Cột C)", color: "from-yellow-400 to-amber-500", glow: "shadow-yellow-500/5", fn: handleSourceColCFileLoaded, clr: () => { setSourceColCFile(null); setResultColC(null); }, desc: "Hỗ trợ file chứa SKU định vị chính xác tại Cột C. Tự động ghi đè giá vàng thần tốc.", icon: "master", hclr: "sky" },
+                    { file: sourceColCFile, id: "source-col-c", label: "Két Gốc 2 (SKU Cột C)", color: "from-yellow-400 to-amber-500", glow: "shadow-yellow-500/5", fn: handleSourceColCFileLoaded, clr: () => { setSourceColCFile(null); setResultColC(null); }, desc: "Hỗ trợ file chứa SKU định vị chính xác tại Cột C. Tự động ghi đè giá vàng thần tốc vào Cột H.", icon: "master", hclr: "sky" },
                     { file: refFile, id: "ref-pricing", label: "Bảng Giá Mới Đối Chiếu", color: "from-emerald-400 to-teal-500", glow: "shadow-emerald-500/5", fn: handleRefFileLoaded, clr: () => { setRefFile(null); setResult(null); setResultColC(null); }, desc: "Bảng chứa danh sách giá mới cập nhật tương ứng phục vụ tra cứu giao thương.", icon: "reference", hclr: "emerald" }
                   ].map((zone, idx) => (
                     <motion.div
@@ -338,7 +366,7 @@ export default function App() {
                       <div>
                         <span className="text-sm font-black text-yellow-400 tracking-wider uppercase block">Sẵn sàng vận hành dòng tiền dữ liệu</span>
                         <p className="text-xs text-amber-100/70 mt-1 leading-relaxed max-w-xl font-medium">
-                          Mọi nguồn tệp đã lọt vào kho. Nhấp nút kích hoạt để hệ thống khai thông luồng đối khớp, vá lại giá bán tối ưu lợi nhuận ngay lập tức.
+                          Mọi nguồn tệp đã lọt vào kho. Nhấp nút kích hoạt để hệ thống khai thông luồng đối khớp, vá lại giá bán tối ưu lợi nhuận về đúng Cột H ngay lập tức.
                         </p>
                       </div>
                     </div>
@@ -374,7 +402,7 @@ export default function App() {
                         activeTab === 'file-f' ? 'bg-amber-500 text-amber-950 shadow' : 'text-amber-800 hover:bg-amber-50'
                       }`}
                     >
-                      KÉT KẾT QUẢ CỘT F ({result.matchingCount} dòng)
+                      KẾT QUẢ TỆP CỘT F ({result.matchingCount} dòng)
                     </button>
                     <button
                       onClick={() => setActiveTab('file-c')}
@@ -382,7 +410,7 @@ export default function App() {
                         activeTab === 'file-c' ? 'bg-yellow-500 text-amber-950 shadow' : 'text-amber-800 hover:bg-amber-50'
                       }`}
                     >
-                      KÉT KẾT QUẢ CỘT C ({resultColC.matchingCount} dòng)
+                      KẾT QUẢ TỆP CỘT C ({resultColC.matchingCount} dòng)
                     </button>
                   </div>
                 )}
@@ -434,8 +462,8 @@ export default function App() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="flex flex-col justify-between gap-3 bg-amber-50/20 border-2 border-amber-100/60 p-4 rounded-xl hover:border-yellow-500 transition-all group">
                             <div>
-                              <span className="text-xs font-black text-amber-900 block">1. Tệp Kết Quả Đã Vá Giá Cột C</span>
-                              <p className="text-[11px] text-amber-700/70 mt-1 font-medium">Xử lý chuỗi SKU tại cột C, hoàn thiện bảng giá bán ra cực chuẩn.</p>
+                              <span className="text-xs font-black text-amber-900 block">1. Tệp Kết Quả Đã Vá Giá Vào Cột H (SKU Cột C)</span>
+                              <p className="text-[11px] text-amber-700/70 mt-1 font-medium">Xử lý chuỗi SKU tại cột C, ghi đè hoàn thiện bảng giá bán ra đúng tại Cột H.</p>
                             </div>
                             <button onClick={() => downloadResultFile('file-c')} className="w-full py-2.5 bg-yellow-500 hover:bg-yellow-600 text-amber-950 font-black text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm border border-yellow-200">
                               <Download className="w-4 h-4" /> Tải Tệp_Kết_Quả_C.xlsx
